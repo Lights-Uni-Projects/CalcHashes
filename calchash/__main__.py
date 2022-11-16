@@ -34,7 +34,7 @@ def main(args: argparse.Namespace) -> None:
         try:
             Hasher(file)
         except (FileNotFoundError, FileEmptyError, PermissionError):
-            print(f"{Fore.YELLOW}[!?] Skipped {file} due to an {Fore.RED}exception{Fore.RESET}!")
+            print(f"{Fore.YELLOW}[!?] Skipped {file} due to an {Fore.RED}exception{Fore.YELLOW}!{Fore.RESET}")
             continue
 
         results += [check_file(file, HashingAlgorithm(str(args.algorithm).lower()))]

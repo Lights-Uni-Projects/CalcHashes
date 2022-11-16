@@ -1,4 +1,4 @@
-"""Light's Vapoursynth Functions."""
+"""Simply pretty hash calculator and checksum verifier."""
 
 __version__ = '1.0.0'
 
