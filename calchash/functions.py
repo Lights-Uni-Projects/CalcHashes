@@ -1,3 +1,4 @@
+import os
 import re
 from itertools import zip_longest
 from typing import Any
@@ -5,7 +6,7 @@ from typing import Any
 from colorama import Fore
 from tabulate import tabulate
 
-from .types import FilePath, Hasher, HashingAlgorithm, hash_table, match_n, match_y
+from .types import FilePath, HashingAlgorithm, add_hash_response, hash_table, match_n, match_y
 
 __all__: list[str] = [
     "check_file",
@@ -14,8 +15,20 @@ __all__: list[str] = [
 ]
 
 
-def check_file(file: FilePath, algo: HashingAlgorithm) -> dict[str, str]:
-    """Check file for matching hash and other such information."""
+def check_file(file: FilePath, algo: HashingAlgorithm, add_hash: bool = False) -> dict[str, str]:
+    """
+    Check file for matching hash and other such information.
+
+    :param file:        Path to input file.
+    :param algo:        Hashing algorithm to verify.
+    :param add_hash:    Whether to add the hash to the filename or not.
+                        Will replace any existing hashes it can find.
+
+    :return:            Dictionary with the following keys:
+                        {file, algo found, algo calculated, match, diff, notes}
+
+    :raises ValueError: `ALL` is passed to `algo`.
+    """
     # TODO: add a recursive run that works
     if algo is HashingAlgorithm.ALL:
         raise ValueError(f"\"{algo}\" is currently not supported!")
@@ -26,11 +39,15 @@ def check_file(file: FilePath, algo: HashingAlgorithm) -> dict[str, str]:
     hash_in_file: Any = re.search(hash_table[algo], file)
 
     if not hash_in_file:
-        notes = f"Could not find {algo.value} hash in file!"
+        notes += f"No {algo.value} hash found! "
     else:
         hash_in_file = re.sub(r"[\]\[]", "", hash_in_file.group(0)).strip()
 
     hash_of_file = algo.get_hash(file)
+
+    if add_hash:
+        success = add_hash_to_filename(file, algo, hash_of_file)
+        notes += add_hash_response[success]
 
     return {
         'File': f"{Fore.CYAN}{file[:64]}{Fore.RESET}",
@@ -41,6 +58,32 @@ def check_file(file: FilePath, algo: HashingAlgorithm) -> dict[str, str]:
                          zip_longest(list(hash_in_file or "X" * len(hash_of_file)), list(hash_of_file))]),
         'Notes': notes
     }
+
+
+def add_hash_to_filename(file: str, algo: HashingAlgorithm, hash: str) -> int:
+    """
+    Try adding the hash to the filename.
+
+    :param file:    Path to input file.
+    :param algo:    Hashing algorithm.
+    :param hash:    Pre-calculated hash.
+
+    :return:        Integer signifying a `note`.
+    """
+    try:
+        if re.search(hash, file):
+            return 3
+
+        if re.search(hash_table[algo], file):
+            os.rename(file, re.sub(hash_table[algo], f" [{hash}]", file))
+            return 2
+
+        str_f = re.sub(hash_table[algo], '', file)
+        os.rename(str_f, f'{os.path.splitext(str_f)[0]} [{hash}]{os.path.splitext(str_f)[1]}')
+
+        return 1
+    except Exception:
+        return 0
 
 
 def construct_table(results: list[dict[str, str]]) -> str:

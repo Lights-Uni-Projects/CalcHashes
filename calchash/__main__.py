@@ -1,9 +1,12 @@
 import argparse
+import os
 from glob import glob
 
+from alive_progress import alive_bar
+
 from .exceptions import FileEmptyError
-from .types import HashingAlgorithm, Hasher
 from .functions import check_file, construct_table, gather_data
+from .types import Hasher, HashingAlgorithm
 
 try:
     from colorama import Fore, init
@@ -31,18 +34,25 @@ def main(args: argparse.Namespace) -> None:
               "Please try another algorithm.")
         exit()
 
-    files = [args.input_file] if args.input_file else glob('*')
+    if os.path.isdir(args.input_file):
+        files = glob(f"{args.input_file}/*")
+    else:
+        files = [args.input_file] if args.input_file else glob('*')
 
     results: list[dict[str, str]] = list()
 
-    for file in files:
-        try:
-            Hasher(file)
-        except (FileNotFoundError, FileEmptyError, PermissionError):
-            print(f"{Fore.YELLOW}[!?] Skipped {file} due to an {Fore.RED}exception{Fore.YELLOW}!{Fore.RESET}")
-            continue
+    with alive_bar(len(files), dual_line=True, title='Processing files...') as bar:
+        for file in files:
+            try:
+                Hasher(file)
+            except (FileNotFoundError, FileEmptyError, PermissionError) as e:
+                print(f"{Fore.YELLOW}[?!] Skipped {file} due to an {Fore.RED}exception ({e}){Fore.YELLOW} "
+                      f"(this may not display entirely correctly)!{Fore.RESET}")
+                bar()
+                continue
 
-        results += [check_file(file, HashingAlgorithm(str(args.algorithm).lower()))]
+            results += [check_file(file, HashingAlgorithm(str(args.algorithm).lower()), args.append)]
+            bar()
 
     if args.recursive:
         print("\n")
@@ -59,15 +69,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input-file",
                         action="store", default=False, dest="input_file",
-                        help="input file to verify checksum of")
+                        help="input file or directory")
     parser.add_argument("-R", "--recursive",
                         action="store_true", default=False,
                         help="recursively go over every file in the current directory (default: %(default)s)")
-    parser.add_argument("-S", "--strip",
+    parser.add_argument("-a", "--append",
                         action="store_true", default=False,
-                        help="strip CRCs from filenames (default: %(default)s)")
+                        help="append calculated hash to filename (default: %(default)s)")
     parser.add_argument("-A", "--algorithm",
-                        action="store", default='CRC32', choices=['CRC32', 'MD5', 'SHA256', 'ALL'],
+                        action="store", default='CRC32', choices=[x.value.upper() for x in HashingAlgorithm],
                         help="hashing algorithm to use (default: %(default)s)")
     parser.parse_args()
     args = parser.parse_args()

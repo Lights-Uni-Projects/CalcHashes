@@ -14,8 +14,10 @@ __all__: list[str] = [
     "match_n", "match_y",
     "Hasher",
     "hash_table",
+    "add_hash_response",
 ]
 
+# Simple responses for (mis)matches.
 match_y = f"{Fore.LIGHTGREEN_EX}Match found!{Fore.RESET}"
 match_n = f"{Fore.RED}No match!{Fore.RESET}"
 
@@ -72,8 +74,9 @@ class HashingAlgorithm(str, Enum):
     SHA256 = "sha256"
     ALL = "all"
 
-    def get_hash(self, hasher: str | FilePath | Hasher) -> str:
-        if isinstance(hasher, (str, FilePath)):
+    def get_hash(self, hasher: str | Hasher) -> str:
+        """Call the hash calculating method of the Hasher class."""
+        if isinstance(hasher, str):
             hasher = Hasher(hasher)
 
         if self is self.CRC32:
@@ -88,9 +91,18 @@ class HashingAlgorithm(str, Enum):
         raise NotImplementedError
 
 
-# Different hash search strings table
+# Different hash search strings table.
 hash_table: dict[HashingAlgorithm, str] = {
     HashingAlgorithm.CRC32: r"\s?\[[0-9a-fA-F]{8}\]",
     HashingAlgorithm.MD5: r"\s?\[[a-fA-F]{32}\]",
     HashingAlgorithm.SHA256: r"\s?\[[A-Fa-f0-9]{64}\]",
 }
+
+
+# Responses to filename changes.
+add_hash_response: list[str] = [
+    "Failed adding hash. ",  # 0
+    "Hash added. ",  # 1
+    "Hash fixed. ",  # 2
+    "",  # 3
+]
