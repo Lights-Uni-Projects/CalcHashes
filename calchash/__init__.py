@@ -1,6 +1,6 @@
 # flake8: noqa
 
-from . import algos, exceptions, types
-from .algos import *
+from . import functions, exceptions, types
+from .functions import *
 from .exceptions import *
 from .types import *

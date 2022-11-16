@@ -1,9 +1,8 @@
 import argparse
 from glob import glob
 
-from .algos import Hasher
 from .exceptions import FileEmptyError
-from .types import HashingAlgorithm
+from .types import HashingAlgorithm, Hasher
 from .functions import check_file, construct_table, gather_data
 
 try:
@@ -17,6 +16,7 @@ try:
 except ModuleNotFoundError:
     raise ModuleNotFoundError("Missing dependency: tabulate (`pip install tabulate`)!")
 
+
 init(convert=True)
 
 
@@ -24,6 +24,11 @@ def main(args: argparse.Namespace) -> None:
     """Run the program."""
     if not any([args.input_file, args.recursive]):
         print(f"{Fore.RED}[!!] You must either pass an input file (-i) or run a recursive check (-R)!{Fore.RESET}")
+        exit()
+
+    if HashingAlgorithm(str(args.algorithm.lower())) == HashingAlgorithm.ALL:
+        print(f"{Fore.RED}\"{args.algorithm}\" is currently not supported!{Fore.RESET} "
+              "Please try another algorithm.")
         exit()
 
     files = [args.input_file] if args.input_file else glob('*')

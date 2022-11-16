@@ -44,5 +44,6 @@ python -m calchash -i "file" -A CRC32
 ```
 
 The default is CRC32.
-This setting is not case-sensitive.
-For a list of all supported hashing algorithms, please run `--help`.
+This setting is **case-sensitive**.
+
+For a list of all currently-supported hashing algorithms, please run `--help`.

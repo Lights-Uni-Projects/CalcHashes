@@ -5,16 +5,20 @@ from typing import Any
 from colorama import Fore
 from tabulate import tabulate
 
-from .algos import Hasher, hash_table
-from .types import FilePath, HashingAlgorithm, match_n, match_y
+from .types import FilePath, Hasher, HashingAlgorithm, hash_table, match_n, match_y
+
+__all__: list[str] = [
+    "check_file",
+    "construct_table",
+    "gather_data",
+]
 
 
 def check_file(file: FilePath, algo: HashingAlgorithm) -> dict[str, str]:
     """Check file for matching hash and other such information."""
     # TODO: add a recursive run that works
     if algo is HashingAlgorithm.ALL:
-        for hash in hash_table:
-            check_file(file, hash)
+        raise ValueError(f"\"{algo}\" is currently not supported!")
 
     file = str(file)
     notes = ""
@@ -26,8 +30,7 @@ def check_file(file: FilePath, algo: HashingAlgorithm) -> dict[str, str]:
     else:
         hash_in_file = re.sub(r"[\]\[]", "", hash_in_file.group(0)).strip()
 
-    hash_obj = Hasher(file)
-    hash_of_file = hash_obj.get_hash(algo)
+    hash_of_file = algo.get_hash(file)
 
     return {
         'File': f"{Fore.CYAN}{file[:64]}{Fore.RESET}",
