@@ -1,4 +1,5 @@
 import re
+from itertools import zip_longest
 from typing import Any
 
 from colorama import Fore
@@ -34,7 +35,7 @@ def check_file(file: FilePath, algo: HashingAlgorithm) -> dict[str, str]:
         f'{algo.value.upper()} calculated': f"{Fore.LIGHTMAGENTA_EX}{hash_of_file}{Fore.RESET}",
         'Match': match_y if hash_in_file == hash_of_file else match_n,
         'Diff': "".join([f"{Fore.LIGHTGREEN_EX if x is y else Fore.RED}{x}{Fore.RESET}" for x, y in
-                         zip(list(hash_in_file or "X" * len(hash_of_file)), list(hash_of_file))]),
+                         zip_longest(list(hash_in_file or "X" * len(hash_of_file)), list(hash_of_file))]),
         'Notes': notes
     }
 
