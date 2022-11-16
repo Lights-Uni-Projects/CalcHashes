@@ -1,0 +1,15 @@
+.eggs/
+.mypy_cache/
+.vscode/
+.vspreview/
+*.egg-info/*
+*.glsl
+*.pyc
+*.vpy
+/tests/dependencies/*
+/tests/output/*
+build/
+dist/
+venv/
+*.mkv
+*.png
