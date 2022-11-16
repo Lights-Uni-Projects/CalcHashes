@@ -50,7 +50,7 @@ def check_file(file: FilePath, algo: HashingAlgorithm, add_hash: bool = False) -
         notes += add_hash_response[success]
 
     return {
-        'File': f"{Fore.CYAN}{file[:64]}{Fore.RESET}",
+        'File': f"{Fore.CYAN}{file[:64]}{'...' if len(file) > 64 else ''}{Fore.RESET}",  # This is immensely cursed fyi
         f'{algo.value.upper()} found': f"{Fore.MAGENTA if hash_in_file else Fore.RED}{hash_in_file}{Fore.RESET}",
         f'{algo.value.upper()} calculated': f"{Fore.LIGHTMAGENTA_EX}{hash_of_file}{Fore.RESET}",
         'Match': match_y if hash_in_file == hash_of_file else match_n,
