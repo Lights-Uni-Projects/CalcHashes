@@ -65,6 +65,10 @@ class Hasher:
         """Compute and returns Secure Hash Algorithm 2 (SHA-2) checksum, 32bit (SHA-256)."""
         return hashlib.sha256(self.data).hexdigest()
 
+    def sha512(self) -> str:
+        """Compute and returns Secure Hash Algorithm 2 (SHA-2) checksum, 32bit (SHA-256)."""
+        return hashlib.sha512(self.data).hexdigest()
+
 
 class HashingAlgorithm(str, Enum):
     """Enum representing a hashing algorithm."""
@@ -72,6 +76,7 @@ class HashingAlgorithm(str, Enum):
     CRC32 = "crc32"
     MD5 = "md5"
     SHA256 = "sha256"
+    SHA512 = "sha512"
     ALL = "all"
 
     def get_hash(self, hasher: str | Hasher) -> str:
@@ -88,6 +93,9 @@ class HashingAlgorithm(str, Enum):
         if self is self.SHA256:
             return hasher.sha256()
 
+        if self is self.SHA512:
+            return hasher.sha512()
+
         raise NotImplementedError
 
 
@@ -96,6 +104,7 @@ hash_table: dict[HashingAlgorithm, str] = {
     HashingAlgorithm.CRC32: r"\s?\[[0-9a-fA-F]{8}\]",
     HashingAlgorithm.MD5: r"\s?\[[a-fA-F]{32}\]",
     HashingAlgorithm.SHA256: r"\s?\[[A-Fa-f0-9]{64}\]",
+    HashingAlgorithm.SHA512: r"\s?\[[A-Fa-f0-9]{128}\]",
 }
 
 
